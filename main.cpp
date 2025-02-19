@@ -1,12 +1,10 @@
-#include <fmt/format.h>
+//#include <fmt/format.h>
 #include "xtorch.h"
 using namespace xtorch;
 #include "loadData.h"
 #include "GradCheck.h"
 
 int main() {
-    // gradCheck();
-
     const int niter = 1000;
     const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 128, inZ = 100;
     const bool Gbias = false, Dbias = false;

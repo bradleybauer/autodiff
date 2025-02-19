@@ -507,7 +507,7 @@ struct BCELossNode : Node {
         const auto& y = c[1]->value;
         xt::noalias(value) = (-1. / batchSize) * xt::sum(y * xt::log(x) + (1 - y) * xt::log(1 - x));
     }
-    virtual void backward() { c[0]->grad += grad / (-batchSize) * (c[1]->value / c[0]->value - (1 - c[1]->value) / (1 - c[0]->value)); }
+    virtual void backward() { c[0]->grad += grad / -double(batchSize) * (c[1]->value / c[0]->value - (1 - c[1]->value) / (1 - c[0]->value)); }
 };
 
 template <typename T> static shared_ptr<Node> opNode(const vector<shared_ptr<Node>>& children) { return make_shared<T>(children); }

@@ -18,7 +18,7 @@ struct DataLoader {
     const int batchSize;
 
     DataLoader(const int batchSize) : batchSize(batchSize) {
-        std::string folder = "/home/xdaimon/projects/ID/IntrinsicDimensionality/Datasets/CelebAResized";
+        std::string folder = "/home/bradley/Downloads/archive/50k/";
         vector<std::string> batch;
         for (const auto& entry : fs::directory_iterator(folder)) {
             batch.push_back(entry.path());

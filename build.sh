@@ -1,14 +1,17 @@
 # g++ -std=c++2a -O0 -g \
 
-g++ -std=c++2a -Ofast -ffast-math -march=native \
+# g++ -std=c++2a -O0 -g -ffast-math -march=native \
+
+g++ -std=c++2a -O0 -g \
     -fconcepts \
-    -I/opt/miniconda3/envs/xtensor/include/ \
-    -I/opt/miniconda3/envs/xtensor/include/xtensor/ \
-    -I/opt/miniconda3/envs/xtensor/include/xtensor-blas/ \
+    -I/home/bradley/miniconda3/envs/xtensor/include/ \
+    -I/home/bradley/miniconda3/envs/xtensor/include/xtensor/ \
+    -I/home/bradley/miniconda3/envs/xtensor/include/xtensor-blas/ \
     -Isrc \
-    main.cpp \
-    -L/opt/miniconda3/envs/xtensor/lib \
+    gradCheck.cpp \
+    -L/home/bradley/miniconda3/envs/xtensor/lib \
     -lOpenImageIO \
     -lcblas \
-    -lfmt \
     -o main
+
+#-o main

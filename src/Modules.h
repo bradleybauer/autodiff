@@ -85,6 +85,7 @@ class Linear : public Module {
   public:
     Linear(int in, int out) : W{xt::random::randn<double>({in, out})}, b{xt::zeros<double>({out})} {}
     virtual Tensor forward(const Tensor& x) { return x.dot(W) + b; }
+    virtual std::string name() const { return "Linear"; }
 
   protected:
     virtual vector<Tensor> getParameters() const { return {W, b}; }
@@ -93,11 +94,13 @@ class Linear : public Module {
 class FlattenBatch : public Module {
   public:
     virtual Tensor forward(const Tensor& x) { return x.reshape({int(x.shape(0)), -1}); }
+    virtual std::string name() const { return "FlattenBatch"; }
 };
 
 class Flatten : public Module {
   public:
     virtual Tensor forward(const Tensor& x) { return x.reshape({-1}); }
+    virtual std::string name() const { return "Flatten"; }
 };
 
 class ReLU : public Module {
@@ -106,21 +109,25 @@ class ReLU : public Module {
   public:
     ReLU(const double negativeSlope = 0.) : negativeSlope(negativeSlope) {}
     virtual Tensor forward(const Tensor& x) { return x.relu(negativeSlope); }
+    virtual std::string name() const { return "ReLU"; }
 };
 
 class Sin : public Module {
   public:
     virtual Tensor forward(const Tensor& x) { return x.sin(); }
+    virtual std::string name() const { return "Sin"; }
 };
 
 class Sigmoid : public Module {
   public:
     virtual Tensor forward(const Tensor& x) { return x.sigmoid(); }
+    virtual std::string name() const { return "Sigmoid"; }
 };
 
 class Tanh : public Module {
   public:
     virtual Tensor forward(const Tensor& x) { return x.tanh(); }
+    virtual std::string name() const { return "Tanh"; }
 };
 
 // TODO it'd be better to have type(modules) == vector<Module*>
@@ -141,6 +148,7 @@ template <typename... Args> class Sequential : public Module {
     virtual vector<Module*> submodules() {
         return std::apply([](Args&... t) { return vector<Module*>{{(&t)...}}; }, modules);
     }
+    virtual std::string name() const { return "Sequential"; }
 };
 
 // TODO assumes filter is same size in each direction
