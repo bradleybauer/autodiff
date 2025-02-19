@@ -6,8 +6,8 @@ using namespace xtorch;
 #include "GradCheck.h"
 
 int main() {
-    const int niter = 1000;
-    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 64, inZ = 100;
+    const int niter = 4000;
+    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 256, inZ = 100;
     const bool Gbias = false, Dbias = false;
 
     Sequential netG{ConvTranspose2d{inZ, depth * 8, 4, 1, 0, Gbias},
@@ -60,8 +60,8 @@ int main() {
 
     // optimizerD = optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
     // optimizerG = optim.Adam(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    auto optimizerD = SGD(netD.parameters(), .01);
-    auto optimizerG = SGD(netG.parameters(), .01);
+    auto optimizerD = SGD(netD.parameters(), .004);
+    auto optimizerG = SGD(netG.parameters(), .004);
 
     auto label = Tensor{xt::ones<double>({batchSize})}; // real_label
 
