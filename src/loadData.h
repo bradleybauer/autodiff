@@ -1,4 +1,13 @@
 #pragma once
+
+#include <fstream>
+#include <stdexcept>
+#include "xtensor/xarray.hpp"
+#include "xtensor/xadapt.hpp"
+#include "xtensor/xmath.hpp"
+#include "xtensor/xmanipulation.hpp"
+#include "xtensor/xio.hpp"
+
 #include "xtorch.h"
 using namespace xtorch;
 
@@ -42,9 +51,46 @@ struct DataLoader {
     }
 };
 
-void dump_img(auto x, auto name) {
-    xt::xarray<double> x0 = ((x + 1.) / 2.) * 256.;
-    xt::xarray<int> x1 = xt::minimum(xt::cast<int>(xt::transpose(x0, {1, 2, 0})), 255);
-    xt::xarray<int> x2 = xt::maximum(x1, 0);
-    xt::dump_image(name, x2);
+void dump_img(xt::xarray<double> x, const std::string& filename)
+{
+    if (x.dimension() != 3)
+    {
+        throw std::runtime_error("dump_img_ppm expects a 3D image (channels, height, width)");
+    }
+    
+    // Normalize from [-1, 1] to [0, 255]
+    xt::xarray<double> normalized = (((x + 1.0) / 2.0) * 255.0);
+    // Cast to unsigned char
+    xt::xarray<unsigned char> image = xt::cast<unsigned char>(normalized);
+    // Transpose from (channels, height, width) to (height, width, channels)
+    xt::xarray<unsigned char> transposed = xt::transpose(image, {1, 2, 0});
+    
+    auto shape = transposed.shape();
+    int height   = static_cast<int>(shape[0]);
+    int width    = static_cast<int>(shape[1]);
+    int channels = static_cast<int>(shape[2]);
+    
+    std::ofstream ofs(filename, std::ios::binary);
+    if (!ofs)
+    {
+        throw std::runtime_error("Could not open file for writing");
+    }
+    
+    if (channels == 3)
+    {
+        // Write binary PPM header for a color image
+        ofs << "P6\n" << width << " " << height << "\n255\n";
+        ofs.write(reinterpret_cast<const char*>(transposed.data()), width * height * 3);
+    }
+    else if (channels == 1)
+    {
+        // Write binary PGM header for a grayscale image
+        ofs << "P5\n" << width << " " << height << "\n255\n";
+        ofs.write(reinterpret_cast<const char*>(transposed.data()), width * height);
+    }
+    else
+    {
+        throw std::runtime_error("Unsupported number of channels");
+    }
+    ofs.close();
 }
