@@ -60,8 +60,8 @@ int main() {
 
     // optimizerD = optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
     // optimizerG = optim.Adam(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    auto optimizerD = SGD(netD.parameters(), .004);
-    auto optimizerG = SGD(netG.parameters(), .004);
+    auto optimizerD = SGD(netD.parameters(), .01);
+    auto optimizerG = SGD(netG.parameters(), .01);
 
     auto label = Tensor{xt::ones<double>({batchSize})}; // real_label
 
