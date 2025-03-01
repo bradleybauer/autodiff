@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include "xreducer.hpp"
 #include <memory>
 #include <vector>
 
@@ -127,9 +127,9 @@ struct AddNode : Node {
     virtual void forward() { xt::noalias(value) = c[0]->value + c[1]->value; }
     virtual void backward() {
         if (lstretched && lpadded) {
-            c[0]->grad += xt::reshape_view(xt::sum(grad, lstretchedDims), lshape);
+            c[0]->grad += xt::reshape_view(xt::sum(grad, lstretchedDims, xt::keep_dims), lshape);
         } else if (lstretched) {
-            c[0]->grad += xt::sum(grad, lstretchedDims);
+            c[0]->grad += xt::sum(grad, lstretchedDims, xt::keep_dims);
         } else if (lpadded) {
             c[0]->grad += xt::reshape_view(grad, lshape);
         } else {
@@ -137,9 +137,9 @@ struct AddNode : Node {
         }
 
         if (rstretched && rpadded) {
-            c[1]->grad += xt::reshape_view(xt::sum(grad, rstretchedDims), rshape);
+            c[1]->grad += xt::reshape_view(xt::sum(grad, rstretchedDims, xt::keep_dims), rshape);
         } else if (rstretched) {
-            c[1]->grad += xt::sum(grad, rstretchedDims);
+            c[1]->grad += xt::sum(grad, rstretchedDims, xt::keep_dims);
         } else if (rpadded) {
             c[1]->grad += xt::reshape_view(grad, rshape);
         } else {

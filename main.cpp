@@ -8,7 +8,7 @@ using namespace xtorch;
 int main() {
     const int niter = 4000;
     const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 256, inZ = 100;
-    const bool Gbias = false, Dbias = false;
+    const bool Gbias = true, Dbias = true;
 
     Sequential netG{ConvTranspose2d{inZ, depth * 8, 4, 1, 0, Gbias},
                     BatchNorm2d{depth * 8},
@@ -42,6 +42,7 @@ int main() {
         if (m.name() == "Conv2d" or m.name() == "ConvTranspose2d") {
             auto params = m.parameters();
             params[0].setValue(.02 * xt::random::randn<double>(params[0].shape()));
+            // params[1].setValue(xt::zeros<double>(params[1].shape()));
         } else if (m.name() == "BatchNorm2d") {
             auto params = m.parameters();
             params[0].setValue(1. + .02 * xt::random::randn<double>(params[0].shape()));

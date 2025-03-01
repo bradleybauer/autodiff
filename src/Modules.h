@@ -160,7 +160,7 @@ class Conv2d : public Module {
   public:
     Conv2d(int inDepth, int outDepth, int filterSize, int stride, int padding, bool bias = true)
         : inDepth(inDepth), outDepth(outDepth), filterHeight(filterSize), filterWidth(filterSize), stride(stride), padding(padding),
-          bias(bias), W{xt::random::randn<double>({inDepth * filterHeight * filterWidth, outDepth})}, b{xt::zeros<double>({outDepth})} {}
+          bias(bias), W{xt::random::randn<double>({inDepth * filterHeight * filterWidth, outDepth})}, b{xt::zeros<double>({1, outDepth, 1, 1})} {}
     virtual Tensor forward(const Tensor& x) {
         const int batchSize = x.shape(0);
         const int inHeight = x.shape(2) + 2 * padding;
@@ -173,10 +173,11 @@ class Conv2d : public Module {
             y = y.pad(padding);
         }
         y = y.im2row(inDepth, filterHeight, stride).dot(W);
+        y = y.reshape({batchSize, outHeight, outWidth, outDepth}).transpose({0, 3, 1, 2});
         if (bias) {
             y = y + b;
         }
-        return y.reshape({batchSize, outHeight, outWidth, outDepth}).transpose({0, 3, 1, 2});
+        return y;
     }
 
     virtual std::string name() const { return "Conv2d"; }
@@ -204,7 +205,7 @@ class ConvTranspose2d : public Module {
   public:
     ConvTranspose2d(int outDepth, int inDepth, int filterSize, int stride, int padding, bool bias = true)
         : inDepth(inDepth), outDepth(outDepth), filterHeight(filterSize), filterWidth(filterSize), padding(padding), stride(stride),
-          bias(bias), W{xt::random::randn<double>({outDepth, inDepth * filterHeight * filterWidth})}, b{xt::zeros<double>({inDepth})} {}
+          bias(bias), W{xt::random::randn<double>({outDepth, inDepth * filterHeight * filterWidth})}, b{xt::zeros<double>({1, inDepth, 1, 1})} {}
     virtual Tensor forward(const Tensor& x) {
         // compute the shape of the tensor we will return
         auto outShape = x.shape();
@@ -223,9 +224,12 @@ class ConvTranspose2d : public Module {
         y = y.dot(W);                                          // (NPQ,CRS)
         y = y.row2im(inShape, outShape, filterHeight, stride); // (N,C,H+2*pad,W+2*pad)
         if (padding)
-            return y.unpad(padding); // height = ((P - 1) * stride + 1) + (K - 1) - 2*pad = (P-1)*stride + K - 2 * pad // (N,C,H,W)
-        else
-            return y;
+            y = y.unpad(padding); // height = ((P - 1) * stride + 1) + (K - 1) - 2*pad = (P-1)*stride + K - 2 * pad // (N,C,H,W)
+        if (bias)
+        {
+            y = y + b;
+        }
+        return y;
     }
     virtual std::string name() const { return "ConvTranspose2d"; }
 
