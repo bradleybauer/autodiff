@@ -7,7 +7,7 @@ using namespace xtorch;
 
 int main() {
     const int niter = 4000;
-    const int numImgFeatures = 3, depth = 128, imgSize = 64, batchSize = 256, inZ = 128;
+    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 256, inZ = 128;
     const bool Gbias = true, Dbias = true;
 
     Sequential netG{ConvTranspose2d{inZ, depth * 8, 4, 1, 0, Gbias},

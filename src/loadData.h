@@ -23,31 +23,25 @@ const int imgSz = 64;
 const int imgDepth = 3;
 
 struct DataLoader {
-    vector<vector<std::string>> batches;
+    vector<std::string> data;
     const int batchSize;
 
     DataLoader(const int batchSize) : batchSize(batchSize) {
         std::string folder = "/home/bradley/Downloads/archive/50k/";
-        vector<std::string> batch;
         for (const auto& entry : fs::directory_iterator(folder)) {
-            batch.push_back(entry.path());
-            if (batch.size() == batchSize) {
-                batches.push_back(batch);
-                batch.clear();
-            }
+            data.push_back(entry.path());
         }
     }
 
-    int size() { return batches.size(); }
+    int size() { return data.size() / batchSize; }
 
     Tensor loadBatch(int i) {
-        vector<std::string>& batch = batches[i];
-        xt::xarray<double> ret = xt::zeros<double>({batchSize, imgSz, imgSz, imgDepth});
+        xt::xarray<double> batch = xt::zeros<double>({batchSize, imgSz, imgSz, imgDepth});
         for (int j = 0; j < batchSize; ++j) {
-            auto img = xt::load_image(batch[j]);
-            xt::view(ret, j) = 2. * (img / 255.) - 1.;
+            auto img = xt::load_image(data[std::rand() % data.size()]);
+            xt::view(batch, j) = 2. * (img / 255.) - 1.;
         }
-        return {xt::transpose(ret, {0, 3, 1, 2})};
+        return {xt::transpose(batch, {0, 3, 1, 2}) + .05 * xt::random::randn<double>({batchSize, imgDepth, imgSz, imgSz})};
     }
 };
 
