@@ -1,4 +1,3 @@
-//#include <fmt/format.h>
 #include "xtorch.h"
 #include <iostream>
 using namespace xtorch;
@@ -7,7 +6,7 @@ using namespace xtorch;
 
 int main() {
     const int niter = 4000;
-    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 128, inZ = 128;
+    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 256, inZ = 128;
     const bool Gbias = true, Dbias = true;
 
     Sequential netG{ConvTranspose2d{inZ, depth * 8, 4, 1, 0, Gbias},
@@ -57,10 +56,10 @@ int main() {
     const double real_label = .9;
     const double fake_label = .1;
 
-    // optimizerD = optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    // optimizerG = optim.Adam(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    auto optimizerD = SGD(netD.parameters(), .005);
-    auto optimizerG = SGD(netG.parameters(), .01);
+    auto optimizerD = Adam(netD.parameters(), .0005);
+    auto optimizerG = Adam(netG.parameters(), .0005);
+    // auto optimizerD = SGD(netD.parameters(), .005);
+    // auto optimizerG = SGD(netG.parameters(), .01);
 
     auto label = Tensor{xt::ones<double>({batchSize})}; // real_label
 
