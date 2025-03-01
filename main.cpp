@@ -7,7 +7,7 @@ using namespace xtorch;
 
 int main() {
     const int niter = 4000;
-    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 256, inZ = 128;
+    const int numImgFeatures = 3, depth = 64, imgSize = 64, batchSize = 128, inZ = 128;
     const bool Gbias = true, Dbias = true;
 
     Sequential netG{ConvTranspose2d{inZ, depth * 8, 4, 1, 0, Gbias},
@@ -54,14 +54,12 @@ int main() {
 
     auto criterion = BCEWithLogitsLoss{};
 
-    auto fixed_noise = Tensor(xt::random::randn<double>({batchSize, inZ, 1, 1}));
-
-    const int real_label = 1;
-    const int fake_label = 0;
+    const double real_label = .9;
+    const double fake_label = .1;
 
     // optimizerD = optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
     // optimizerG = optim.Adam(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    auto optimizerD = SGD(netD.parameters(), .01);
+    auto optimizerD = SGD(netD.parameters(), .005);
     auto optimizerG = SGD(netG.parameters(), .01);
 
     auto label = Tensor{xt::ones<double>({batchSize})}; // real_label
@@ -105,11 +103,8 @@ int main() {
             cout << endl;
 
             
-            if (i % 10 == 0) {
-                std::string wtf = "fake" + std::to_string(epoch * loader.size() + i);
-                dump_img(xt::view(fake.getValue(), 0), wtf + "_.png");
-                dump_img(xt::view(netG(fixed_noise).getValue(), 0), wtf + "_fixed.png");
-            }
+            std::string wtf = "fake" + std::to_string(epoch * loader.size() + i);
+            dump_img(xt::view(fake.getValue(), 0), wtf + "_.png");
         }
     }
 }
